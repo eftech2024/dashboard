@@ -51,9 +51,7 @@ export default function HardRealTimeMonitor() {
   const [error, setError] = useState<string>('')
   
   // 각 슬레이브별 개별 설정
-  const [slaveSettings, setSlaveSettings] = useState<{[key: number]: {
-    timeRange: '1m' | '5m' | '10m' | '30m' | '1h' | '1d'
-  }}>({
+  const [slaveSettings, setSlaveSettings] = useState<{[key: number]: { timeRange: '1m' | '5m' | '10m' | '30m' | '1h' | '1d' }}>({
     2: { timeRange: '30m' }, // 경질 1번 (슬레이브 2)
     1: { timeRange: '30m' }  // 경질 2번 (슬레이브 1)
   })
@@ -89,7 +87,6 @@ export default function HardRealTimeMonitor() {
   const getStatusDescription = (statusCode: string): { text: string; color: string } => {
     if (!statusCode) return { text: '상태 불명', color: 'text-gray-400' }
     
-    // 16진수 문자열을 숫자로 변환
     const hexValue = parseInt(statusCode, 16)
     const numericValue = parseInt(statusCode, 10)
     
@@ -97,7 +94,6 @@ export default function HardRealTimeMonitor() {
       return { text: `상태: ${statusCode}`, color: 'text-gray-300' }
     }
     
-    // 16진수 비트 패턴 해석
     if (hexValue & 0x01) return { text: '과전압 보호', color: 'text-red-400' }
     if (hexValue & 0x02) return { text: '과전류 보호', color: 'text-red-400' }
     if (hexValue & 0x04) return { text: '과온도 보호', color: 'text-orange-400' }
@@ -105,7 +101,6 @@ export default function HardRealTimeMonitor() {
     if (hexValue & 0x10) return { text: '팬 고장', color: 'text-orange-400' }
     if (hexValue & 0x20) return { text: '입력 전원 이상', color: 'text-red-400' }
     
-    // 일반적인 상태 코드 해석
     if (numericValue >= 200 && numericValue < 300) return { text: '정상 운전', color: 'text-blue-400' }
     if (numericValue >= 400 && numericValue < 500) return { text: '경고 상태', color: 'text-yellow-400' }
     if (numericValue >= 500) return { text: '오류 상태', color: 'text-red-400' }
@@ -145,11 +140,10 @@ export default function HardRealTimeMonitor() {
       setVoltageData(prev => ({ ...prev, [slaveId]: voltagePoints }))
       setCurrentData(prev => ({ ...prev, [slaveId]: currentPoints }))
 
-      // 최신 상태 업데이트
       if (data && data.length > 0) {
         const latestRecord = data[data.length - 1]
         const lastTimestamp = new Date(latestRecord.timestamp)
-        const isOnline = Date.now() - lastTimestamp.getTime() < 60000 // 1분 이내
+        const isOnline = Date.now() - lastTimestamp.getTime() < 60000
 
         setSlaveStatuses(prev => {
           const updated = prev.filter(s => s.slave_id !== slaveId)
@@ -169,7 +163,6 @@ export default function HardRealTimeMonitor() {
     }
   }, [])
 
-  // 초기 데이터 로드
   useEffect(() => {
     const loadInitialData = async () => {
       setLoading(true)
@@ -184,7 +177,6 @@ export default function HardRealTimeMonitor() {
     loadInitialData()
   }, [fetchData, slaveSettings, hardSlaveIds])
 
-  // 실시간 구독 설정
   useEffect(() => {
     const subscription = supabase
       .channel('hard-realtime-changes')
@@ -219,7 +211,6 @@ export default function HardRealTimeMonitor() {
             }))
           }
 
-          // 상태 업데이트
           const isOnline = Date.now() - timestamp.getTime() < 60000
           setSlaveStatuses(prev => {
             const updated = prev.filter(s => s.slave_id !== newRecord.slave_id)
@@ -242,7 +233,6 @@ export default function HardRealTimeMonitor() {
     }
   }, [hardSlaveIds])
 
-  // 시간 범위 변경 핸들러
   const handleTimeRangeChange = (slaveId: number, newRange: string) => {
     setSlaveSettings(prev => ({
       ...prev,
@@ -285,7 +275,6 @@ export default function HardRealTimeMonitor() {
         <p className="text-gray-400">경질 1-2번 (슬레이브 2, 1번) 실시간 상태</p>
       </div>
 
-      {/* 슬레이브 상태 카드 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {hardSlaveIds.map(slaveId => {
           const status = slaveStatuses.find(s => s.slave_id === slaveId)
@@ -324,7 +313,6 @@ export default function HardRealTimeMonitor() {
                 </div>
               </div>
 
-              {/* 시간 범위 선택 */}
               <div className="mt-4">
                 <label className="text-gray-400 text-sm block mb-2">시간 범위:</label>
                 <select
@@ -345,9 +333,7 @@ export default function HardRealTimeMonitor() {
         })}
       </div>
 
-      {/* 토스증권 스타일 4분할 차트 */}
       <div className="grid grid-cols-2 gap-4">
-        {/* 경질 1번 전압 */}
         <div className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-white">경질 1번 전압</h3>
@@ -374,10 +360,7 @@ export default function HardRealTimeMonitor() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                  intersect: false,
-                  mode: 'index' as const,
-                },
+                interaction: { intersect: false, mode: 'index' as const },
                 plugins: {
                   legend: { display: false },
                   tooltip: {
@@ -392,13 +375,13 @@ export default function HardRealTimeMonitor() {
                     titleFont: { size: 11 },
                     bodyFont: { size: 11 },
                     callbacks: {
-                      title: function(context) {
+                      title: (context) => {
                         if (context[0]?.parsed?.x) {
                           return formatInTimeZone(new Date(context[0].parsed.x), 'Asia/Seoul', 'MM-dd HH:mm:ss', { locale: ko })
                         }
                         return ''
                       },
-                      label: function(context) {
+                      label: (context) => {
                         const timestamp = new Date(context.parsed.x)
                         const currentPoints = currentData[2] || []
                         const closestCurrent = currentPoints.find(p => 
@@ -414,19 +397,11 @@ export default function HardRealTimeMonitor() {
                   }
                 },
                 scales: {
-                  x: {
-                    type: 'time' as const,
-                    adapters: { date: { locale: ko } },
-                    display: false
-                  },
+                  x: { type: 'time' as const, adapters: { date: { locale: ko } }, display: false },
                   y: {
                     grid: { color: '#374151' },
                     border: { display: false },
-                    ticks: { 
-                      color: '#6b7280',
-                      font: { size: 10 },
-                      maxTicksLimit: 4
-                    }
+                    ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 4 }
                   }
                 }
               }}
@@ -434,7 +409,6 @@ export default function HardRealTimeMonitor() {
           </div>
         </div>
 
-        {/* 경질 1번 전류 */}
         <div className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-white">경질 1번 전류</h3>
@@ -461,10 +435,7 @@ export default function HardRealTimeMonitor() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                  intersect: false,
-                  mode: 'index' as const,
-                },
+                interaction: { intersect: false, mode: 'index' as const },
                 plugins: {
                   legend: { display: false },
                   tooltip: {
@@ -479,13 +450,13 @@ export default function HardRealTimeMonitor() {
                     titleFont: { size: 11 },
                     bodyFont: { size: 11 },
                     callbacks: {
-                      title: function(context) {
+                      title: (context) => {
                         if (context[0]?.parsed?.x) {
                           return formatInTimeZone(new Date(context[0].parsed.x), 'Asia/Seoul', 'MM-dd HH:mm:ss', { locale: ko })
                         }
                         return ''
                       },
-                      label: function(context) {
+                      label: (context) => {
                         const timestamp = new Date(context.parsed.x)
                         const voltagePoints = voltageData[2] || []
                         const closestVoltage = voltagePoints.find(p => 
@@ -501,19 +472,11 @@ export default function HardRealTimeMonitor() {
                   }
                 },
                 scales: {
-                  x: {
-                    type: 'time' as const,
-                    adapters: { date: { locale: ko } },
-                    display: false
-                  },
+                  x: { type: 'time' as const, adapters: { date: { locale: ko } }, display: false },
                   y: {
                     grid: { color: '#374151' },
                     border: { display: false },
-                    ticks: { 
-                      color: '#6b7280',
-                      font: { size: 10 },
-                      maxTicksLimit: 4
-                    }
+                    ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 4 }
                   }
                 }
               }}
@@ -521,7 +484,6 @@ export default function HardRealTimeMonitor() {
           </div>
         </div>
 
-        {/* 경질 2번 전압 */}
         <div className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-white">경질 2번 전압</h3>
@@ -548,10 +510,7 @@ export default function HardRealTimeMonitor() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                  intersect: false,
-                  mode: 'index' as const,
-                },
+                interaction: { intersect: false, mode: 'index' as const },
                 plugins: {
                   legend: { display: false },
                   tooltip: {
@@ -566,13 +525,13 @@ export default function HardRealTimeMonitor() {
                     titleFont: { size: 11 },
                     bodyFont: { size: 11 },
                     callbacks: {
-                      title: function(context) {
+                      title: (context) => {
                         if (context[0]?.parsed?.x) {
                           return formatInTimeZone(new Date(context[0].parsed.x), 'Asia/Seoul', 'MM-dd HH:mm:ss', { locale: ko })
                         }
                         return ''
                       },
-                      label: function(context) {
+                      label: (context) => {
                         const timestamp = new Date(context.parsed.x)
                         const currentPoints = currentData[1] || []
                         const closestCurrent = currentPoints.find(p => 
@@ -591,21 +550,13 @@ export default function HardRealTimeMonitor() {
                   x: {
                     type: 'time' as const,
                     adapters: { date: { locale: ko } },
-                    ticks: { 
-                      color: '#6b7280',
-                      font: { size: 10 },
-                      maxTicksLimit: 6
-                    },
+                    ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 6 },
                     grid: { display: false }
                   },
                   y: {
                     grid: { color: '#374151' },
                     border: { display: false },
-                    ticks: { 
-                      color: '#6b7280',
-                      font: { size: 10 },
-                      maxTicksLimit: 4
-                    }
+                    ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 4 }
                   }
                 }
               }}
@@ -613,7 +564,6 @@ export default function HardRealTimeMonitor() {
           </div>
         </div>
 
-        {/* 경질 2번 전류 */}
         <div className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-white">경질 2번 전류</h3>
@@ -640,10 +590,7 @@ export default function HardRealTimeMonitor() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                  intersect: false,
-                  mode: 'index' as const,
-                },
+                interaction: { intersect: false, mode: 'index' as const },
                 plugins: {
                   legend: { display: false },
                   tooltip: {
@@ -658,13 +605,13 @@ export default function HardRealTimeMonitor() {
                     titleFont: { size: 11 },
                     bodyFont: { size: 11 },
                     callbacks: {
-                      title: function(context) {
+                      title: (context) => {
                         if (context[0]?.parsed?.x) {
                           return formatInTimeZone(new Date(context[0].parsed.x), 'Asia/Seoul', 'MM-dd HH:mm:ss', { locale: ko })
                         }
                         return ''
                       },
-                      label: function(context) {
+                      label: (context) => {
                         const timestamp = new Date(context.parsed.x)
                         const voltagePoints = voltageData[1] || []
                         const closestVoltage = voltagePoints.find(p => 
@@ -683,21 +630,13 @@ export default function HardRealTimeMonitor() {
                   x: {
                     type: 'time' as const,
                     adapters: { date: { locale: ko } },
-                    ticks: { 
-                      color: '#6b7280',
-                      font: { size: 10 },
-                      maxTicksLimit: 6
-                    },
+                    ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 6 },
                     grid: { display: false }
                   },
                   y: {
                     grid: { color: '#374151' },
                     border: { display: false },
-                    ticks: { 
-                      color: '#6b7280',
-                      font: { size: 10 },
-                      maxTicksLimit: 4
-                    }
+                    ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 4 }
                   }
                 }
               }}
