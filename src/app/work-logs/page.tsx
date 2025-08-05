@@ -64,7 +64,7 @@ export default function WorkLogsPage() {
         setLoading(true)
         
         let query = supabase
-          .from('work_logs')
+          .from('work_data')  // 테이블 이름을 'work_data'로 변경
           .select('*')
 
         // 필터 적용
@@ -95,13 +95,13 @@ export default function WorkLogsPage() {
     const subscription = supabase
       .channel('work-logs-changes')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'work_logs' }, 
+        { event: '*', schema: 'public', table: 'work_data' }, 
         () => {
           // 데이터 다시 페칭
           const fetchWorkLogs = async () => {
             try {
               let query = supabase
-                .from('work_logs')
+                .from('work_data')  // 테이블 이름을 'work_data'로 변경
                 .select('*')
 
               if (filter !== 'all') {

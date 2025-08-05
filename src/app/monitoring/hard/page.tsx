@@ -1,4 +1,4 @@
-import HardRealTimeMonitor from '@/components/HardRealTimeMonitor'
+import HardRealTimeMonitor from '../../../components/HardRealTimeMonitor'
 
 export default function HardMonitoringPage() {
   return <HardRealTimeMonitor />

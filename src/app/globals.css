@@ -10,5 +10,63 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 차트 모달 스타일 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #111827;
+  border-radius: 16px;
+  border: 1px solid #374151;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+/* 시간봉 버튼 스타일 */
+.timeframe-buttons {
+  display: flex;
+  gap: 8px;
+  background: #1f2937;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid #374151;
+}
+
+.timeframe-button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: transparent;
+  color: #9ca3af;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeframe-button:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
+.timeframe-button.active {
+  background: #3b82f6;
+  color: #ffffff;
 }
