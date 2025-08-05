@@ -196,7 +196,7 @@ export default function HardRealTimeMonitor() {
               ...prev,
               [newRecord.slave_id]: [
                 ...(prev[newRecord.slave_id] || []).slice(-999),
-                { x: timestamp, y: newRecord.voltage }
+                { x: timestamp, y: newRecord.voltage! }
               ]
             }))
           }
@@ -206,7 +206,7 @@ export default function HardRealTimeMonitor() {
               ...prev,
               [newRecord.slave_id]: [
                 ...(prev[newRecord.slave_id] || []).slice(-999),
-                { x: timestamp, y: newRecord.current }
+                { x: timestamp, y: newRecord.current! }
               ]
             }))
           }
